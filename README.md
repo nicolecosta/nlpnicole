@@ -1,2 +1,0 @@
-# nlpnicole
-NLP Assignments

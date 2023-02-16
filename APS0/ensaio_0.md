@@ -1,4 +1,4 @@
-# <span style="color:pink">Ensaio APS0 NLP 2023.1</span>
+# Ensaio APS0 NLP 2023.1
 NICOLE SARVASI ALVES DA COSTA
 
 Para fazer o chatbot, comecei primeiro lendo as instruções da entrega e depois parti para o arquivo **deploy_de_bot_no_disord.md**. Fui seguindo as instruções: comecei installando as bibliotecas, depois parti para fazer as configurações na aba de desenvolvedor do discord. 
