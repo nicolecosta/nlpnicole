@@ -7,7 +7,6 @@ load_dotenv()
 SERVIDOR = os.getenv('SERVIDOR')
 CANAL = os.getenv('CANAL')
 TOKEN = os.getenv('TOKEN')
-print(SERVIDOR,CANAL,TOKEN)
 
 intents = discord.Intents.default()
 intents.members = True
