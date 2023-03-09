@@ -673,3 +673,5 @@ asyncio.exceptions.TimeoutError[0m
 [30;1m2023-03-05 16:00:47[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has successfully RESUMED session cafd4f6271dfaa5446bc44db683e4b2b.
 [30;1m2023-03-05 16:23:00[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has successfully RESUMED session cafd4f6271dfaa5446bc44db683e4b2b.
 [30;1m2023-03-05 17:17:10[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has successfully RESUMED session cafd4f6271dfaa5446bc44db683e4b2b.
+[30;1m2023-03-09 10:10:45[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
+[30;1m2023-03-09 10:10:45[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 91af736596d666975591d794664c942a).
