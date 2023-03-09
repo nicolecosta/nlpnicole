@@ -1,0 +1,6 @@
+# Ensaio APS1 NLP 2023.1
+NICOLE SARVASI ALVES DA COSTA
+
+Para começar a APS1, analisei APIs interessantes para colocar no meu bot. Depois de averiguar algumas das mais interessantes optei pela APOD: Astronomy Picture of the Day, da NASA. Sempre gostei de coisas relacionadas ao espaço e meu público alvo seriam os entusiastas de astronomia. Além disso vi quais eram os parâmetros que poderiam ser passados e se eram interessantes. Gostei bastante pois o usuário manda uma data e a API retorna a APOD. Sempre gostei muito sobre essa área e essas imagens são queridinhas do público, tanto no próprio site da NASA quanto em suas redes sociasis. Assim me cadastrei no site da NASA e fiz a requisição da API key. Assim com ajuda da documentação e do ChatGPT fiz a chamada. Com a chamada funcionando parti para o desenvolvimento para o chatbot receber o comando do tipo: !run YYYY-MM-DD e que esta data fosse depois de 16 de Junho de 1995, que foi o início dessa iniciativa.
+
+Assim com a lógica do Regex e da chamada de API funcionando, integrei ao código da APS0 e rodei alguns testes para garantir que tudo estava fluindo corretamente. Além disso fuçei comandos para o display de texto no discord para melhorar o meu !help. 
