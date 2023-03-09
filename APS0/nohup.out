@@ -1,6 +1,0 @@
-[30;1m2023-02-16 11:05:16[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
-[30;1m2023-02-16 11:05:17[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 95f24914e4363d905c5a0170b6913c77).
-[30;1m2023-02-16 11:10:06[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
-[30;1m2023-02-16 11:10:07[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 2a4f6402b288e6130ea72c7e563a6bd5).
-[30;1m2023-02-16 13:46:02[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has successfully RESUMED session 2a4f6402b288e6130ea72c7e563a6bd5.
-[30;1m2023-02-16 14:25:43[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has successfully RESUMED session 2a4f6402b288e6130ea72c7e563a6bd5.
