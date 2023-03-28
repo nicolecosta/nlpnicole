@@ -74,8 +74,10 @@ def webscrap(input_url, max_depth):
             soup = BeautifulSoup(response.content, 'html.parser')
 
             # Obtém o título da página
-            
-            title = soup.title.string
+            if soup.title is not None:
+                title = soup.title.string
+            else:
+                title = "Generic Title"
             #title = valid_link.replace("https://", "").replace("\\", "").replace("https:\\", "").replace("www", "")
 
             # Obtém o conteúdo da página
@@ -182,36 +184,6 @@ def buscar_inv(palavras, indice):
 # print(max_value_url)
 # print("Score:", resultado[max_value_url])
 
-# %%
-# def get_synonyms(palavra,df):
-#     words = palavra
-
-#     vectorizer = TfidfVectorizer(stop_words='english')
-#     tfidf = vectorizer.fit_transform(df['Content']).todense()
-
-#     highest_score = 0
-#     syns1 = wordnet.synsets(words)[0]
-#     seen_words = set()  # Set to keep track of words already in the list
-    
-#     for term in vectorizer.vocabulary_:
-#         try:
-#             syns2 = wordnet.synsets(str(term))
-#             for syn in syns2:
-#                 syn_name = syn.name().split('.')[0]
-#                 if syn_name in vectorizer.vocabulary_:
-#                     #print(syn_name)
-#                     score = syns1.wup_similarity(syns2)
-#                     if score != 1:  # Exclude perfect matches
-#                         word = syns2.name().split('.')[0]
-#                         if word not in seen_words:  # Append only if word is not already in list
-#                             if score > highest_score:
-#                                 highest_score = score
-#                                 highest_word = word
-#                                 seen_words.add(word)
-#         except IndexError:
-#             continue
-
-#     return highest_word
 
 # %%
 def get_synonyms(palavra,df):
