@@ -1,4 +1,4 @@
-# APS1
+# APS
 
 Para rodar o servidor localmente basta usar o comando:
 

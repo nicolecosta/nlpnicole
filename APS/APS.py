@@ -3,6 +3,27 @@ import os
 from dotenv import load_dotenv
 import re
 import requests
+from aps3_functions import webscrap
+from aps3_functions import create_index
+from aps3_functions import webscrap
+from aps3_functions import buscar_inv
+from aps3_functions import get_synonyms
+from aps3_functions import multiple_synonyms
+from bs4 import BeautifulSoup
+from collections import deque
+from urllib.parse import urljoin
+import json
+import os
+from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
+import pandas as pd
+import nltk
+from nltk.corpus import wordnet
+from nltk.corpus import stopwords
+from tqdm import tqdm
+nltk.download('wordnet')
+nltk.download('omw')
+nltk.download('omw-1.4')
 
 load_dotenv()
 
@@ -15,6 +36,10 @@ intents = discord.Intents.default()
 intents.members = True
 
 client = discord.Client(intents=intents)
+inv_index = {}
+crawl = False
+webscrap_df = pd.DataFrame()
+dir_name = ''
 
 
 @client.event
@@ -75,11 +100,55 @@ async def on_message(message):
                 
                 if text_message.endswith('info'):
                     await message.channel.send(f"{explanation}")
+                    
             else:
                 # se a requisição não for bem sucedida
                 await message.channel.send(f"Error: Request returned status code {response.status_code}")
+
         else:
             await message.channel.send('Oops, algo deu errado :( Verifique a chamada correta com o comando `!help`')
+
+    elif text_message.startswith('!crawl'):
+        global webscrap_df
+        global dir_name
+        webscrap_df = pd.DataFrame()
+        url_pattern = r"!crawl\s+(https?://\S+)"
+        match = re.match(url_pattern, text_message)
+        if match:
+            webscrap_url = match.group(1)
+            webscrap_df = webscrap(webscrap_url, 10)
+            global inv_index
+            inv_index = create_index(webscrap_df)
+            global crawl
+            crawl = True
+            await message.channel.send('Crawling concluido!')
+    
+    elif text_message.startswith('!wn_search'):
+        if crawl == True:
+            input_pattern = r"!wn_search\s+(\S+)"
+            match = re.match(input_pattern, text_message)
+            if match:
+                palavras = re.sub('!search', '',text_message)
+                synonym = multiple_synonyms(palavras,webscrap_df)
+                resultado = buscar_inv(synonym,inv_index)
+                if resultado == {}:
+                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :()")
+                else:
+                    max_value_url = max(resultado, key=lambda x: resultado[x])
+                    await message.channel.send(f"Aqui está: {max_value_url}")
+        else:
+            await message.channel.send('Para fazer o `!search` é preciso primeiro fazer o `!crawl`')
+
+    
+
+
+
+
+    
+
+            
+
+
 
     # elif text_message not in commands:
     #     await message.channel.send('Parece que não tenho esse comando ainda :O\n\nUma lista de coisas que você pode me mandar: ```!oi\n!author\n!source\n!help```' )
