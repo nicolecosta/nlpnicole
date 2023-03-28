@@ -115,13 +115,37 @@ async def on_message(message):
         url_pattern = r"!crawl\s+(https?://\S+)"
         match = re.match(url_pattern, text_message)
         if match:
+            await message.channel.send('Crawling iniciado...')
             webscrap_url = match.group(1)
-            webscrap_df = webscrap(webscrap_url, 10)
+            global dir_name
+            webscrap_df = webscrap(webscrap_url, 25)
+            await message.channel.send('.. .. .. .. .. .. ')
             global inv_index
             inv_index = create_index(webscrap_df)
             global crawl
             crawl = True
-            await message.channel.send('Crawling concluido!')
+            await message.channel.send('Agora pode utilizar os comandos `!search` e `!wn_search` para fazer buscas')
+        else: 
+            await message.channel.send('Por favor escreva o comando `!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`')
+
+    elif text_message.startswith('!search'):
+        if crawl == True:
+            input_pattern = r"!search\s+(\S+)"
+            match = re.match(input_pattern, text_message)
+            if match:
+                palavras = re.sub('!search', '',text_message)
+                resultado = buscar_inv(palavras,inv_index)
+                if resultado == {}:
+                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :(")
+                else:
+                    max_value_url = max(resultado, key=lambda x: resultado[x])
+                    title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
+                    await message.channel.send(f" {max_value_url}")
+            else:
+                await message.channel.send('Por favor escreva o comando `!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search dwarf planet`')
+
+        else:
+            await message.channel.send('Para fazer o `!search` é preciso primeiro fazer o `!crawl`')
     
     elif text_message.startswith('!wn_search'):
         if crawl == True:
@@ -130,24 +154,22 @@ async def on_message(message):
             if match:
                 palavras = re.sub('!search', '',text_message)
                 synonym = multiple_synonyms(palavras,webscrap_df)
+                print(synonym)
                 resultado = buscar_inv(synonym,inv_index)
                 if resultado == {}:
-                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :()")
+                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :(")
                 else:
                     max_value_url = max(resultado, key=lambda x: resultado[x])
-                    await message.channel.send(f"Aqui está: {max_value_url}")
+                    title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
+                    line_length = 20
+                    padding_length = (line_length - len(title)) // 2
+                    padding = "-" * padding_length
+                    centered_text = padding + title + padding
+                    await message.channel.send(f"**{centered_text}** \n {max_value_url}")
+            else:
+                await message.channel.send('Por favor escreva o comando `!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search little planet`')
         else:
             await message.channel.send('Para fazer o `!search` é preciso primeiro fazer o `!crawl`')
-
-    
-
-
-
-
-    
-
-            
-
 
 
     # elif text_message not in commands:
