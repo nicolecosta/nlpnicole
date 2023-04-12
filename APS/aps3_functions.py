@@ -50,7 +50,6 @@ def webscrap(input_url, max_depth):
         
         # Procura todos os links no elemento atual
         links = current_element.find_all('a')
-        
         # Adiciona todos os elementos encontrados na fila
         for link in links[:max_depth]:
             # Obtem o valor do atributo href do link
@@ -75,7 +74,10 @@ def webscrap(input_url, max_depth):
             soup = BeautifulSoup(response.content, 'html.parser')
 
             # Obtém o título da página
-            title = soup.title.string
+            if soup.title is not None:
+                title = soup.title.string
+            else:
+                title = "Generic Title"
             #title = valid_link.replace("https://", "").replace("\\", "").replace("https:\\", "").replace("www", "")
 
             # Obtém o conteúdo da página
@@ -135,7 +137,7 @@ def create_index(df):
     tfidf = vectorizer.fit_transform(doc_content).todense()
 
     indice_invertido = {}
-    for term in tqdm(vectorizer.vocabulary_):
+    for term in vectorizer.vocabulary_:
         dic_score = {}
         for i, doc in enumerate(doc_content):
             j = vectorizer.vocabulary_[term] #term frequency
@@ -182,6 +184,7 @@ def buscar_inv(palavras, indice):
 # print(max_value_url)
 # print("Score:", resultado[max_value_url])
 
+<<<<<<< HEAD
 # %%
 # def get_synonyms(palavra,df):
 #     words = palavra
@@ -212,6 +215,8 @@ def buscar_inv(palavras, indice):
 #             continue
 
 #     return highest_word
+=======
+>>>>>>> b13c6125ef52a3466d1c777b18fdb2635df49ccd
 
 # %%
 def get_synonyms(palavra,df):

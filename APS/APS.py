@@ -36,10 +36,11 @@ intents = discord.Intents.default()
 intents.members = True
 
 client = discord.Client(intents=intents)
+dir_name = ''
+webscrap_df = pd.DataFrame()
 inv_index = {}
 crawl = False
-webscrap_df = pd.DataFrame()
-dir_name = ''
+
 
 
 @client.event
@@ -53,6 +54,7 @@ async def on_message(message):
 
     text_message = message.content.lower()
     commands = ['!oi','!author','!source','!help']
+    global dir_name
 
     if message.author == client.user:
         return
@@ -67,7 +69,7 @@ async def on_message(message):
         await message.channel.send('Aqui está o meu código-fonte: https://github.com/nicolecosta/nlpnicole')
 
     elif text_message == '!help':
-        await message.channel.send('Para visualizar a Astronomy Picture of the Day, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n _*é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
+        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 3 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search dwarf planet` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search little planet`\n\n * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
 
     elif text_message.startswith('!run'):
         pattern_date_api =r'^!run\s((?!199[0-4]|1995-0[1-5])\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))( info)?$'
@@ -110,18 +112,42 @@ async def on_message(message):
 
     elif text_message.startswith('!crawl'):
         global webscrap_df
-        global dir_name
-        webscrap_df = pd.DataFrame()
         url_pattern = r"!crawl\s+(https?://\S+)"
         match = re.match(url_pattern, text_message)
         if match:
-            webscrap_url = match.group(1)
-            webscrap_df = webscrap(webscrap_url, 10)
+            try:
+                await message.channel.send('Crawling iniciado...')
+                webscrap_url = match.group(1)
+                webscrap_df = webscrap(webscrap_url, 25)
+            except Exception as e:
+                # Send an error message to the user
+                await message.channel.send(f"Ops parece que tivemos um imprevisto :0 \nTente novamente com outro link")
             global inv_index
             inv_index = create_index(webscrap_df)
             global crawl
             crawl = True
-            await message.channel.send('Crawling concluido!')
+            await message.channel.send('Agora você pode utilizar os comandos `!search` e `!wn_search` para fazer buscas')
+        else: 
+            await message.channel.send('Por favor escreva o comando `!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`')
+
+    elif text_message.startswith('!search'):
+        if crawl == True:
+            input_pattern = r"!search\s+(\S+)"
+            match = re.match(input_pattern, text_message)
+            if match:
+                palavras = re.sub('!search', '',text_message)
+                resultado = buscar_inv(palavras,inv_index)
+                if resultado == {}:
+                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :(")
+                else:
+                    max_value_url = max(resultado, key=lambda x: resultado[x])
+                    title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
+                    await message.channel.send(f"**{title}** \n {max_value_url}")
+            else:
+                await message.channel.send('Por favor escreva o comando `!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search dwarf planet`')
+
+        else:
+            await message.channel.send('Para fazer o `!search` é preciso primeiro fazer o `!crawl`')
     
     elif text_message.startswith('!wn_search'):
         if crawl == True:
@@ -132,22 +158,15 @@ async def on_message(message):
                 synonym = multiple_synonyms(palavras,webscrap_df)
                 resultado = buscar_inv(synonym,inv_index)
                 if resultado == {}:
-                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :()")
+                    await message.channel.send(f"Parece que esse assunto não pode ser encontrado aqui :(")
                 else:
                     max_value_url = max(resultado, key=lambda x: resultado[x])
-                    await message.channel.send(f"Aqui está: {max_value_url}")
+                    title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
+                    await message.channel.send(f"**{title}** \n {max_value_url}")
+            else:
+                await message.channel.send('Por favor escreva o comando `!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search little planet`')
         else:
             await message.channel.send('Para fazer o `!search` é preciso primeiro fazer o `!crawl`')
-
-    
-
-
-
-
-    
-
-            
-
 
 
     # elif text_message not in commands:
