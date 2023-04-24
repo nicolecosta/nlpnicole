@@ -3,12 +3,10 @@ import os
 from dotenv import load_dotenv
 import re
 import requests
-from aps3_functions import webscrap
-from aps3_functions import create_index
-from aps3_functions import webscrap
-from aps3_functions import buscar_inv
-from aps3_functions import get_synonyms
-from aps3_functions import multiple_synonyms
+from aps3_functions import webscrap, create_index, webscrap, buscar_inv, get_synonyms, multiple_synonyms
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+import joblib
 from bs4 import BeautifulSoup
 from collections import deque
 from urllib.parse import urljoin
@@ -119,6 +117,11 @@ async def on_message(message):
                 await message.channel.send('Crawling iniciado...')
                 webscrap_url = match.group(1)
                 webscrap_df = webscrap(webscrap_url, 25)
+                pipeline = joblib.load('modelo.joblib')
+                webscrap_df['truncated_content'] = webscrap_df['content'].str.split().str[:40].str.join(' ')
+                probabilities = pipeline.predict_proba(webscrap_df['truncated_content'])
+                polarities = (2 * probabilities[:,1]) - 1
+                webscrap_df['threshold'] = polarities
             except Exception as e:
                 # Send an error message to the user
                 await message.channel.send(f"Ops parece que tivemos um imprevisto :0 \nTente novamente com outro link")
@@ -133,8 +136,10 @@ async def on_message(message):
     elif text_message.startswith('!search'):
         if crawl == True:
             input_pattern = r"!search\s+(\S+)"
+            input_pattern_th = r"!search\s+(\S+)\s*(?:th=([\d\.]+))?"
             match = re.match(input_pattern, text_message)
-            if match:
+            match_th = re.match(input_pattern_th, text_message)
+            if match or match_th:
                 palavras = re.sub('!search', '',text_message)
                 resultado = buscar_inv(palavras,inv_index)
                 if resultado == {}:
@@ -142,7 +147,17 @@ async def on_message(message):
                 else:
                     max_value_url = max(resultado, key=lambda x: resultado[x])
                     title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
-                    await message.channel.send(f"**{title}** \n {max_value_url}")
+
+                    if match_th:
+                        threshold = float(match_th.group(2)) if match_th.group(2) else None
+                        threshold_df = webscrap_df.loc[webscrap_df['Url'] == max_value_url, 'threshold'].iloc[0]
+                        if threshold >= threshold_df:
+                            await message.channel.send(f"**{title}** \n {max_value_url}")
+                        else:
+                            await message.channel.send('Me desculpe, nenhum resultado atende as suas expectativas de sentimento :(')
+                    else:
+                        await message.channel.send(f"**{title}** \n {max_value_url}")
+
             else:
                 await message.channel.send('Por favor escreva o comando `!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search dwarf planet`')
 

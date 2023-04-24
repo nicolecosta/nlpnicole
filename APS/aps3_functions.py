@@ -91,8 +91,10 @@ def webscrap(input_url, max_depth):
 
             # # Cria um arquivo JSON com o nome do link e o conteúdo do dicionário
             # Nome do diretório a ser criado
-            dir_name = str(re.sub(r'\W+', '_', url))
-
+            dir_prename = str(re.sub(r'\W+', '_', url))
+            parent_dir = 'WebscrapData'
+            dir_name = os.path.join(parent_dir, dir_prename)
+            
             # Verifica se o diretório já existe
             if not os.path.exists(dir_name):
                 # Cria o diretório
@@ -184,7 +186,6 @@ def buscar_inv(palavras, indice):
 # print(max_value_url)
 # print("Score:", resultado[max_value_url])
 
-<<<<<<< HEAD
 # %%
 # def get_synonyms(palavra,df):
 #     words = palavra
@@ -215,8 +216,6 @@ def buscar_inv(palavras, indice):
 #             continue
 
 #     return highest_word
-=======
->>>>>>> b13c6125ef52a3466d1c777b18fdb2635df49ccd
 
 # %%
 def get_synonyms(palavra,df):
