@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 import re
 import requests
-from aps3_functions import webscrap, create_index, webscrap, buscar_inv, get_synonyms, multiple_synonyms
+from workingFunctions import webscrap, create_index, webscrap, buscar_inv, get_synonyms, multiple_synonyms
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 import joblib
@@ -67,7 +67,7 @@ async def on_message(message):
         await message.channel.send('Aqui está o meu código-fonte: https://github.com/nicolecosta/nlpnicole')
 
     elif text_message == '!help':
-        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 3 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search dwarf planet` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search little planet`\n\n * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
+        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 3 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search uranus` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!wn_search little planet`\n Também é possível chamar `!search` ou `!wn_search` e no final adicionar um parâmetro `th`, indicando o valor mínimo de negatividade da resposta (esse valor vai de -1 a 1), por exemplo: \n`!search uranus th=0.9` \n * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
 
     elif text_message.startswith('!run'):
         pattern_date_api =r'^!run\s((?!199[0-4]|1995-0[1-5])\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))( info)?$'
@@ -117,11 +117,6 @@ async def on_message(message):
                 await message.channel.send('Crawling iniciado...')
                 webscrap_url = match.group(1)
                 webscrap_df = webscrap(webscrap_url, 25)
-                pipeline = joblib.load('modelo.joblib')
-                webscrap_df['truncated_content'] = webscrap_df['content'].str.split().str[:40].str.join(' ')
-                probabilities = pipeline.predict_proba(webscrap_df['truncated_content'])
-                polarities = (2 * probabilities[:,1]) - 1
-                webscrap_df['threshold'] = polarities
             except Exception as e:
                 # Send an error message to the user
                 await message.channel.send(f"Ops parece que tivemos um imprevisto :0 \nTente novamente com outro link")
@@ -136,7 +131,7 @@ async def on_message(message):
     elif text_message.startswith('!search'):
         if crawl == True:
             input_pattern = r"!search\s+(\S+)"
-            input_pattern_th = r"!search\s+(\S+)\s*(?:th=([\d\.]+))?"
+            input_pattern_th = r"!search\s+(.+?)\s+th=(-?\d*(?:\.\d+)?)\s*$"
             match = re.match(input_pattern, text_message)
             match_th = re.match(input_pattern_th, text_message)
             if match or match_th:
@@ -147,14 +142,30 @@ async def on_message(message):
                 else:
                     max_value_url = max(resultado, key=lambda x: resultado[x])
                     title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
-
+                    
                     if match_th:
-                        threshold = float(match_th.group(2)) if match_th.group(2) else None
-                        threshold_df = webscrap_df.loc[webscrap_df['Url'] == max_value_url, 'threshold'].iloc[0]
-                        if threshold >= threshold_df:
-                            await message.channel.send(f"**{title}** \n {max_value_url}")
+                        title_th = None
+                        url_th = None
+                        threshold = float(match_th.group(2)) if match_th.group(2) else 4
+                        if -1 <= threshold <= 1:
+                            threshold_df_max = webscrap_df[webscrap_df['Url'] == max_value_url]['Threshold'].values[0]
+
+                            if threshold_df_max >= threshold:
+                                title_th = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
+                                url_th = max_value_url
+                            else:
+                                for url, value in resultado.items():
+                                    threshold_df = webscrap_df[webscrap_df['Url'] == url]['Threshold'].values[0]
+                                    if threshold_df >= threshold:
+                                        title_th = webscrap_df[webscrap_df['Url'] == url]['Title'].values[0]
+                                        url_th = url  
+
+                            if title_th is not None and url_th is not None:
+                                await message.channel.send(f"**{title_th}** \n {url_th}")
+                            else:
+                                await message.channel.send('Me desculpe, nenhum resultado atende as suas expectativas de sentimento :(')
                         else:
-                            await message.channel.send('Me desculpe, nenhum resultado atende as suas expectativas de sentimento :(')
+                            await message.channel.send('Por favor envie um valor de threshold entre -1 e 1')
                     else:
                         await message.channel.send(f"**{title}** \n {max_value_url}")
 
@@ -167,9 +178,11 @@ async def on_message(message):
     elif text_message.startswith('!wn_search'):
         if crawl == True:
             input_pattern = r"!wn_search\s+(\S+)"
+            input_pattern_th = r"!wn_search\s+(.+?)\s+th=(-?\d*(?:\.\d+)?)\s*$"
+            match_th = re.match(input_pattern_th, text_message)
             match = re.match(input_pattern, text_message)
-            if match:
-                palavras = re.sub('!search', '',text_message)
+            if match or match_th:
+                palavras = re.sub('!wn_search', '',text_message)
                 synonym = multiple_synonyms(palavras,webscrap_df)
                 resultado = buscar_inv(synonym,inv_index)
                 if resultado == {}:
@@ -177,7 +190,35 @@ async def on_message(message):
                 else:
                     max_value_url = max(resultado, key=lambda x: resultado[x])
                     title = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
-                    await message.channel.send(f"**{title}** \n {max_value_url}")
+
+                    if match_th:
+                        title_th = None
+                        url_th = None
+
+                        threshold = float(match_th.group(2)) if match_th.group(2) else 4
+                        
+                        if -1 <= threshold <= 1: 
+                            threshold_df_max = webscrap_df[webscrap_df['Url'] == max_value_url]['Threshold'].values[0]
+
+                            if threshold_df_max >= threshold:
+                                title_th = webscrap_df[webscrap_df['Url'] == max_value_url]['Title'].values[0]
+                                url_th = max_value_url
+                            else:
+                                for url, value in resultado.items():
+                                    threshold_df = webscrap_df[webscrap_df['Url'] == url]['Threshold'].values[0]
+                                    if threshold_df >= threshold:
+                                        title_th = webscrap_df[webscrap_df['Url'] == url]['Title'].values[0]
+                                        url_th = url  
+
+                            if title_th is not None and url_th is not None:
+                                await message.channel.send(f"**{title_th}** \n {url_th}")
+                            else:
+                                await message.channel.send('Me desculpe, nenhum resultado atende as suas expectativas de sentimento :(')
+                                
+                        else:
+                            await message.channel.send('Por favor envie um valor de threshold entre -1 e 1')
+                    else:
+                        await message.channel.send(f"**{title}** \n {max_value_url}")
             else:
                 await message.channel.send('Por favor escreva o comando `!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search little planet`')
         else:

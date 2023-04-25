@@ -1,0 +1,8 @@
+# Ensaio APS3 NLP 2023.1
+NICOLE SARVASI ALVES DA COSTA
+
+Para começar a APS3, pensei bastante em qual dataset escolher para o treinamento do classificador de sentimento. A princípio busquei datasets em português, mas depois segui com um em inglês para ser coerente com o método em que fiz o crawl e o search. Assim resolvi utilizar o dataset do IMDB por ser vasto e por termos trabalhado com ele em sala. Então estruturei uma pipeline com um CountVectorizer e uma Regressão Logística e o modelo obteve uma acurácia de 89%. Para ter o valor dentro de um range entre -1 e 1 foi feita uma etapa de pegar o predict_proba e passá-lo por uma equaçãozinha para deixar entre estes valores.
+
+ Assim, salvei o modelo e o implementei dentro da minha função de crawling, então no momento em que eu buscava os dados de cada link, eu já fazia o cálculo da polaridade que retornava um valor de -1 a 1 e este era armazenado junto com os outros dados de título, conteúdo e url na base de dados. Nessa etapa tive alguns desafios na junção dos códigos, mas que foram resolvidos ao fazer o código passo a passo em um notebook e ir debuggando.
+
+ Além disso, fiz um regex para identificar quando o search era enviado com um 'th=' e um valor, fazia um processamento para saber se o valor estava no range esperado e assim armazenava este valor de polaridade mínima e os comparava com o valor do threshold da url de retorno da busca. Caso a polaridade do resultado fosse maior que a requisitada, o bot retorna o link do melhor resultado da busca, se não o bot procura entre os outros links da base de dados, e se não encontrar nenhum que satisfaça indica que a sua busca não atende seus requisitos de sentimento. Por último fiz os testes e atualizei o !help.

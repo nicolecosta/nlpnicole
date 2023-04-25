@@ -12,6 +12,7 @@ from urllib.parse import urljoin
 import json
 import os
 import re
+import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pandas as pd
@@ -25,6 +26,8 @@ nltk.download('omw-1.4')
 
 # %%
 def webscrap(input_url, max_depth):
+
+    pipeline = joblib.load('modelo.joblib')
 
     url_regex = re.compile(
     r'^(?:http|https):\/\/',
@@ -82,12 +85,18 @@ def webscrap(input_url, max_depth):
 
             # Obtém o conteúdo da página
             p_tags = soup.find_all('p')
+            content = []
             for p in p_tags:
                 content.append(p.text)
             join_content = ' '.join(content)
 
+            # truncated_content = ''
+            # truncated_content = ' '.join(join_content.split()[:500])
+            probabilities = pipeline.predict_proba([join_content])[0][1]
+            polarities = (2 * probabilities) - 1
+
             # Cria um dicionário com o título e o conteúdo da página
-            data = {"title": title, "content": re.sub(r'\r?\n|\r', '', join_content), "url": valid_link}
+            data = {"title": title, "content": re.sub(r'\r?\n|\r', '', join_content), "url": valid_link, "threshold":polarities}
 
             # # Cria um arquivo JSON com o nome do link e o conteúdo do dicionário
             # Nome do diretório a ser criado
@@ -112,6 +121,7 @@ def webscrap(input_url, max_depth):
     content_list = []
     title_list = []
     url_list = []
+    polarity_list = []
 
     for filename in os.listdir(dir_name):
         file_path_ = os.path.join(dir_name, filename)
@@ -121,7 +131,8 @@ def webscrap(input_url, max_depth):
             content_list.append(data_content)
             title_list.append(data['title'])
             url_list.append([data['url']][0])
-    data_dict={'Title':title_list,'Content':content_list,'Url':url_list}
+            polarity_list.append(data['threshold'])
+    data_dict={'Title':title_list,'Content':content_list,'Url':url_list, 'Threshold':polarity_list}
     df = pd.DataFrame(data_dict)
 
     return df
@@ -167,6 +178,8 @@ def buscar_inv(palavras, indice):
                 else:
                     resultado[documento] += indice[p][documento]
 
+    resultado = dict(sorted(resultado.items(), key=lambda item: item[1], reverse=True))
+
     return resultado
 
 # %%
@@ -186,36 +199,6 @@ def buscar_inv(palavras, indice):
 # print(max_value_url)
 # print("Score:", resultado[max_value_url])
 
-# %%
-# def get_synonyms(palavra,df):
-#     words = palavra
-
-#     vectorizer = TfidfVectorizer(stop_words='english')
-#     tfidf = vectorizer.fit_transform(df['Content']).todense()
-
-#     highest_score = 0
-#     syns1 = wordnet.synsets(words)[0]
-#     seen_words = set()  # Set to keep track of words already in the list
-    
-#     for term in vectorizer.vocabulary_:
-#         try:
-#             syns2 = wordnet.synsets(str(term))
-#             for syn in syns2:
-#                 syn_name = syn.name().split('.')[0]
-#                 if syn_name in vectorizer.vocabulary_:
-#                     #print(syn_name)
-#                     score = syns1.wup_similarity(syns2)
-#                     if score != 1:  # Exclude perfect matches
-#                         word = syns2.name().split('.')[0]
-#                         if word not in seen_words:  # Append only if word is not already in list
-#                             if score > highest_score:
-#                                 highest_score = score
-#                                 highest_word = word
-#                                 seen_words.add(word)
-#         except IndexError:
-#             continue
-
-#     return highest_word
 
 # %%
 def get_synonyms(palavra,df):
@@ -274,6 +257,5 @@ def multiple_synonyms(palavras,df):
 # buscar_inv('big fox red planet',inv_index)
 
 # %%
-
 
 
