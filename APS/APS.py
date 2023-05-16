@@ -116,7 +116,7 @@ async def on_message(message):
             try:
                 await message.channel.send('Crawling iniciado...')
                 webscrap_url = match.group(1)
-                webscrap_df = webscrap(webscrap_url, 25)
+                webscrap_df = webscrap(webscrap_url, 40)
             except Exception as e:
                 # Send an error message to the user
                 await message.channel.send(f"Ops parece que tivemos um imprevisto :0 \nTente novamente com outro link")
