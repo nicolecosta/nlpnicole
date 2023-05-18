@@ -1,0 +1,21 @@
+2023-05-18 14:53:27.697404: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-05-18 14:53:27.840577: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2023-05-18 14:53:27.840711: I tensorflow/compiler/xla/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+2023-05-18 14:53:28.522277: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory
+2023-05-18 14:53:28.522481: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory
+2023-05-18 14:53:28.522547: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+[nltk_data] Downloading package wordnet to /home/nlpuser/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+[nltk_data] Downloading package omw to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw is already up-to-date!
+[nltk_data] Downloading package omw-1.4 to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw-1.4 is already up-to-date!
+[nltk_data] Downloading package wordnet to /home/nlpuser/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+[nltk_data] Downloading package omw to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw is already up-to-date!
+[nltk_data] Downloading package omw-1.4 to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw-1.4 is already up-to-date!
+[30;1m2023-05-18 14:53:29[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
+[30;1m2023-05-18 14:53:29[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 4c70b91ddedbf9bba529abe0342ca605).
