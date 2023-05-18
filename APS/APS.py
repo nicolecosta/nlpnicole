@@ -2,8 +2,10 @@ import discord
 import os
 from dotenv import load_dotenv
 import re
+import pickle
 import requests
 from workingFunctions import webscrap, create_index, webscrap, buscar_inv, get_synonyms, multiple_synonyms
+from attention import get_data_gen, rnn_model, create_and_train_model, predizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression
 import joblib
@@ -15,7 +17,13 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pandas as pd
+from keras.layers import Input, Dense, Activation, TimeDistributed, Softmax, TextVectorization, Reshape, RepeatVector, Conv1D, Bidirectional, AveragePooling1D, UpSampling1D, Embedding, Concatenate, GlobalAveragePooling1D, LSTM, Multiply, MultiHeadAttention
+from keras.models import Model
+import tensorflow as tf
+from tensorflow import keras
+import keras
 import nltk
+import shelve
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from tqdm import tqdm
@@ -38,6 +46,10 @@ dir_name = ''
 webscrap_df = pd.DataFrame()
 inv_index = {}
 crawl = False
+
+DATASET_DIR = r'/home/nlpuser/nlpnicole/nlpnicole/APS/WebscrapData'
+vocab_size = 2500
+seq_len = 8
 
 
 
@@ -67,7 +79,7 @@ async def on_message(message):
         await message.channel.send('Aqui está o meu código-fonte: https://github.com/nicolecosta/nlpnicole')
 
     elif text_message == '!help':
-        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 3 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search uranus` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!wn_search little planet`\n Também é possível chamar `!search` ou `!wn_search` e no final adicionar um parâmetro `th`, indicando o valor mínimo de negatividade da resposta (esse valor vai de -1 a 1), por exemplo: \n`!search uranus th=0.9` \n * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
+        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 4 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search uranus` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!wn_search little planet`\n Também é possível chamar `!search` ou `!wn_search` e no final adicionar um parâmetro `th`, indicando o valor mínimo de negatividade da resposta (esse valor vai de -1 a 1), por exemplo: \n`!search uranus th=0.9` \n`!generate` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!generate microsoft` \n * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
 
     elif text_message.startswith('!run'):
         pattern_date_api =r'^!run\s((?!199[0-4]|1995-0[1-5])\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))( info)?$'
@@ -125,8 +137,28 @@ async def on_message(message):
             global crawl
             crawl = True
             await message.channel.send('Agora você pode utilizar os comandos `!search` e `!wn_search` para fazer buscas')
+            global vectorize_layer
+            global dataset_gen
+            global model
+            vectorize_layer, dataset_gen = get_data_gen(DATASET_DIR, vocab_size,seq_len)
+            model = rnn_model(seq_len, 512, vocab_size)
+            save_model = create_and_train_model(model, vectorize_layer,dataset_gen)
         else: 
             await message.channel.send('Por favor escreva o comando `!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`')
+
+    elif text_message.startswith('!generate'):
+        input_pattern = r"!generate\s+(\S+)"
+        match = re.match(input_pattern, text_message)
+        
+        if match:
+            await message.channel.send('Um instantinho, estou pensando na sua resposta 🤔')
+            input_message_gen = re.sub('!generate', '',text_message)
+            predictor = keras.models.load_model('./generativemodel.h5')
+            generated_text = str(predizer(input_message_gen, 40, predictor, vectorize_layer, temperature=0))
+            await message.channel.send(f"{generated_text}")
+
+        else:
+            await message.channel.send('Por favor escreva o comando `!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search dwarf planet`')
 
     elif text_message.startswith('!search'):
         if crawl == True:

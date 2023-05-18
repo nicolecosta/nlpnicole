@@ -27,8 +27,6 @@ nltk.download('omw-1.4')
 # %%
 def webscrap(input_url, max_depth):
 
-    pipeline = joblib.load('modelo.joblib')
-
     url_regex = re.compile(
     r'^(?:http|https):\/\/',
     re.IGNORECASE
@@ -85,25 +83,19 @@ def webscrap(input_url, max_depth):
 
             # Obtém o conteúdo da página
             p_tags = soup.find_all('p')
-            content = []
             for p in p_tags:
                 content.append(p.text)
             join_content = ' '.join(content)
 
-            # truncated_content = ''
-            # truncated_content = ' '.join(join_content.split()[:500])
-            probabilities = pipeline.predict_proba([join_content])[0][1]
-            polarities = (2 * probabilities) - 1
-
             # Cria um dicionário com o título e o conteúdo da página
-            data = {"title": title, "content": re.sub(r'\r?\n|\r', '', join_content), "url": valid_link, "threshold":polarities}
+            data = {"title": title, "content": re.sub(r'\r?\n|\r', '', join_content), "url": valid_link}
 
             # # Cria um arquivo JSON com o nome do link e o conteúdo do dicionário
             # Nome do diretório a ser criado
             dir_prename = str(re.sub(r'\W+', '_', url))
-            parent_dir = 'WebscrapData'
+            parent_dir = '/home/nlpuser/nlpnicole/nlpnicole/APS/WebscrapData'
             dir_name = os.path.join(parent_dir, dir_prename)
-            
+
             # Verifica se o diretório já existe
             if not os.path.exists(dir_name):
                 # Cria o diretório
@@ -121,7 +113,6 @@ def webscrap(input_url, max_depth):
     content_list = []
     title_list = []
     url_list = []
-    polarity_list = []
 
     for filename in os.listdir(dir_name):
         file_path_ = os.path.join(dir_name, filename)
@@ -131,8 +122,7 @@ def webscrap(input_url, max_depth):
             content_list.append(data_content)
             title_list.append(data['title'])
             url_list.append([data['url']][0])
-            polarity_list.append(data['threshold'])
-    data_dict={'Title':title_list,'Content':content_list,'Url':url_list, 'Threshold':polarity_list}
+    data_dict={'Title':title_list,'Content':content_list,'Url':url_list}
     df = pd.DataFrame(data_dict)
 
     return df
