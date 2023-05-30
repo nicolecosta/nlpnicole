@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Classifier Interface</title>
+    <style>
+        /* CSS styles */
+
+        body {
+            font-family: Tahoma, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+        max-width: 400px;
+        padding: 20px;
+        text-align: center;
+        background-color: #aedb72;
+        border-radius: 5px;
+        box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.1);
+    }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .input-group label {
+            margin-bottom: 5px;
+        }
+
+        .input-group textarea {
+            padding: 20px;
+            font-size: 16px;
+            resize: vertical;
+            height: 150px; /* Adjust the height value as needed */
+        }
+
+        .input-group input[type="text"] {
+            flex: 1;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .classification-result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .classification-result h2 {
+            margin-bottom: 20px;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .loading-spinner .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLMs Malicious Prompt Classifier</h1>
+
+        <div class="input-group">
+            <label for="prompt">Enter your prompt:</label>
+            <textarea type="text" id="prompt" name="prompt"></textarea>
+        </div>
+
+        <div>
+            <button onclick="classify()" style="background-color: #fffff; color: black; padding: 10px 20px; font-size: 16px; border: none; cursor: pointer; border-radius: 5px;">Classify</button>
+        </div>
+
+        <div class="classification-result">
+            <h2>Classification Result:</h2>
+            <p id="classification"></p>
+        </div>
+
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        function classify() {
+            const promptInput = document.getElementById('prompt').value;
+            const classificationResult = document.getElementById('classification');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+
+            // Show the loading spinner
+            loadingSpinner.style.display = 'block';
+
+            // Send a POST request to your FastAPI endpoint for classification
+            fetch('/classify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: promptInput })
+            })
+            .then(response => response.json())
+            .then(result => {
+                // Display the classification result on the web page
+                classificationResult.textContent = result.classification;
+                classificationResult.style.fontWeight = 'bold';
+
+                // Check the classification and set the color
+                if (result.classification === 'malicious') {
+                    classificationResult.style.color = 'red';
+                } else if (result.classification === 'non-malicious') {
+                    classificationResult.style.color = 'green';
+                }
+
+                // Hide the loading spinner
+                loadingSpinner.style.display = 'none';
+            })
+            .catch(error => {
+                console.log('Error:', error);
+
+                // Hide the loading spinner
+                loadingSpinner.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

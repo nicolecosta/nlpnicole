@@ -60,7 +60,7 @@ def get_data_gen(DATASET_DIR, vocab_size,seq_len):
     vectorize_layer = TextVectorization(max_tokens=vocab_size, output_sequence_length=seq_len)
     vectorize_layer.adapt(dataset)
 
-    return vectorize_layer, dataset
+    return vectorize_layer, dataset, df
         
 
 # %%

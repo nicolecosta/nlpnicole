@@ -1,5 +1,6 @@
 import discord
 import os
+import openai
 from dotenv import load_dotenv
 import re
 import pickle
@@ -37,6 +38,10 @@ SERVIDOR = os.getenv('SERVIDOR')
 CANAL = os.getenv('CANAL')
 TOKEN = os.getenv('TOKEN')
 NASA_API_KEY = os.getenv('NASA_API_KEY')
+OPEN_AI_API_KEY = os.getenv('OPEN_AI_API_KEY')
+OPEN_AI_ORG_KEY = os.getenv('OPEN_AI_ORG_KEY')
+
+openai.api_key = OPEN_AI_API_KEY
 
 intents = discord.Intents.default()
 intents.members = True
@@ -79,7 +84,23 @@ async def on_message(message):
         await message.channel.send('Aqui está o meu código-fonte: https://github.com/nicolecosta/nlpnicole')
 
     elif text_message == '!help':
-        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 4 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search uranus` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!wn_search little planet`\n Também é possível chamar `!search` ou `!wn_search` e no final adicionar um parâmetro `th`, indicando o valor mínimo de negatividade da resposta (esse valor vai de -1 a 1), por exemplo: \n`!search uranus th=0.9` \n`!generate` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!generate microsoft` \n * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
+        await message.channel.send('Para utilizar o **Webscrapping + Queries de Busca** temos 4 comandos:\n\n`!crawl` + uma url, por exemplo: \n`!crawl https://solarsystem.nasa.gov/planets/overview/`\n`!search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!search uranus` \n`!wn_search` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!wn_search little planet`\n Também é possível chamar `!search` ou `!wn_search` e no final adicionar um parâmetro `th`, indicando o valor mínimo de negatividade da resposta (esse valor vai de -1 a 1), por exemplo: \n`!search uranus th=0.9` \n`!generate` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!generate microsoft` \n `!gpt` acompanhado de uma ou mais palavras de busca, por exemplo: \n`!gpt bubble tea` \n  * _é preciso primeiro fazer o crawl para depois fazer a busca_ \n\n\n Para visualizar a **Astronomy Picture of the Day**, envie uma mensagem com **`!run + data(YYYY-MM-DD)`**\n\nSe quiser a imagem com sua descrição envie **`!run + data(YYYY-MM-DD) + info`** \n\n**Por exemplo:** \n!run 2000-09-24\n!run 2000-09-24 info\n\n * _é importante lembrar que as imagens começaram a partir de 16 de junho de 1995_ ')
+
+    elif text_message.startswith('!gpt'): 
+        pattern = r"!gpt\s*"
+
+        text_message = re.sub(pattern, "", text_message)
+        await message.channel.send("Hmmm pensando na sua resposta... 🤔")
+
+        response = openai.Completion.create(
+        model='text-davinci-003',
+        prompt= 'Generate an informative and concise text about the following words, it must be in a single sentence and make sense. Also identify the language and reply in the same language.'+text_message,
+        temperature = 0,
+        max_tokens=40,
+        organization=OPEN_AI_ORG_KEY
+    )
+        gpt_generated = response['choices'][0].text.strip()
+        await message.channel.send(f"{gpt_generated}")
 
     elif text_message.startswith('!run'):
         pattern_date_api =r'^!run\s((?!199[0-4]|1995-0[1-5])\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]))( info)?$'
@@ -140,7 +161,8 @@ async def on_message(message):
             global vectorize_layer
             global dataset_gen
             global model
-            vectorize_layer, dataset_gen = get_data_gen(DATASET_DIR, vocab_size,seq_len)
+            global df
+            vectorize_layer, dataset_gen, df = get_data_gen(DATASET_DIR, vocab_size,seq_len)
             model = rnn_model(seq_len, 512, vocab_size)
             save_model = create_and_train_model(model, vectorize_layer,dataset_gen)
         else: 
