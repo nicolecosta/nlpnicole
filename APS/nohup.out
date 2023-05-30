@@ -1,10 +1,10 @@
-2023-05-18 14:53:27.697404: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+2023-05-30 18:42:20.866117: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
 To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
-2023-05-18 14:53:27.840577: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
-2023-05-18 14:53:27.840711: I tensorflow/compiler/xla/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
-2023-05-18 14:53:28.522277: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory
-2023-05-18 14:53:28.522481: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory
-2023-05-18 14:53:28.522547: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+2023-05-30 18:42:21.014536: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2023-05-30 18:42:21.014588: I tensorflow/compiler/xla/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+2023-05-30 18:42:21.702891: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory
+2023-05-30 18:42:21.702984: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory
+2023-05-30 18:42:21.702996: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
 [nltk_data] Downloading package wordnet to /home/nlpuser/nltk_data...
 [nltk_data]   Package wordnet is already up-to-date!
 [nltk_data] Downloading package omw to /home/nlpuser/nltk_data...
@@ -17,5 +17,60 @@ To enable them in other operations, rebuild TensorFlow with the appropriate comp
 [nltk_data]   Package omw is already up-to-date!
 [nltk_data] Downloading package omw-1.4 to /home/nlpuser/nltk_data...
 [nltk_data]   Package omw-1.4 is already up-to-date!
-[30;1m2023-05-18 14:53:29[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
-[30;1m2023-05-18 14:53:29[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 4c70b91ddedbf9bba529abe0342ca605).
+[30;1m2023-05-30 18:42:22[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
+[30;1m2023-05-30 18:42:23[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 7a6157518f0d6b1073f46f80498b0ff6).
+[30;1m2023-05-30 18:42:31[0m [31mERROR   [0m [35mdiscord.client[0m Ignoring exception in on_message
+[31mTraceback (most recent call last):
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/discord/client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "APS.py", line 95, in on_message
+    response = openai.Completion.create(
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_resources/completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 149, in create
+    ) = cls.__prepare_create_request(
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 106, in __prepare_create_request
+    requestor = api_requestor.APIRequestor(
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_requestor.py", line 130, in __init__
+    self.api_key = key or util.default_api_key()
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/util.py", line 186, in default_api_key
+    raise openai.error.AuthenticationError(
+openai.error.AuthenticationError: No API key provided. You can set your API key in code using 'openai.api_key = <API-KEY>', or you can set the environment variable OPENAI_API_KEY=<API-KEY>). If your API key is stored in a file, you can point the openai module at it with 'openai.api_key_path = <PATH>'. You can generate API keys in the OpenAI web interface. See https://onboard.openai.com for details, or email support@openai.com if you have any questions.[0m
+2023-05-30 18:43:15.989336: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-05-30 18:43:16.133455: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2023-05-30 18:43:16.133592: I tensorflow/compiler/xla/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+2023-05-30 18:43:16.814656: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer.so.7'; dlerror: libnvinfer.so.7: cannot open shared object file: No such file or directory
+2023-05-30 18:43:16.815011: W tensorflow/compiler/xla/stream_executor/platform/default/dso_loader.cc:64] Could not load dynamic library 'libnvinfer_plugin.so.7'; dlerror: libnvinfer_plugin.so.7: cannot open shared object file: No such file or directory
+2023-05-30 18:43:16.815095: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Cannot dlopen some TensorRT libraries. If you would like to use Nvidia GPU with TensorRT, please make sure the missing libraries mentioned above are installed properly.
+[nltk_data] Downloading package wordnet to /home/nlpuser/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+[nltk_data] Downloading package omw to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw is already up-to-date!
+[nltk_data] Downloading package omw-1.4 to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw-1.4 is already up-to-date!
+[nltk_data] Downloading package wordnet to /home/nlpuser/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+[nltk_data] Downloading package omw to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw is already up-to-date!
+[nltk_data] Downloading package omw-1.4 to /home/nlpuser/nltk_data...
+[nltk_data]   Package omw-1.4 is already up-to-date!
+[30;1m2023-05-30 18:43:17[0m [34;1mINFO    [0m [35mdiscord.client[0m logging in using static token
+[30;1m2023-05-30 18:43:18[0m [34;1mINFO    [0m [35mdiscord.gateway[0m Shard ID None has connected to Gateway (Session ID: 92ef8ac7d8c11d74e2eccee2d0216fe2).
+[30;1m2023-05-30 18:43:31[0m [31mERROR   [0m [35mdiscord.client[0m Ignoring exception in on_message
+[31mTraceback (most recent call last):
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/discord/client.py", line 441, in _run_event
+    await coro(*args, **kwargs)
+  File "APS.py", line 95, in on_message
+    response = openai.Completion.create(
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_resources/completion.py", line 25, in create
+    return super().create(*args, **kwargs)
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 149, in create
+    ) = cls.__prepare_create_request(
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_resources/abstract/engine_api_resource.py", line 106, in __prepare_create_request
+    requestor = api_requestor.APIRequestor(
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/api_requestor.py", line 130, in __init__
+    self.api_key = key or util.default_api_key()
+  File "/home/nlpuser/.local/lib/python3.8/site-packages/openai/util.py", line 186, in default_api_key
+    raise openai.error.AuthenticationError(
+openai.error.AuthenticationError: No API key provided. You can set your API key in code using 'openai.api_key = <API-KEY>', or you can set the environment variable OPENAI_API_KEY=<API-KEY>). If your API key is stored in a file, you can point the openai module at it with 'openai.api_key_path = <PATH>'. You can generate API keys in the OpenAI web interface. See https://onboard.openai.com for details, or email support@openai.com if you have any questions.[0m

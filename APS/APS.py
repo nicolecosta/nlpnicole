@@ -94,7 +94,7 @@ async def on_message(message):
 
         response = openai.Completion.create(
         model='text-davinci-003',
-        prompt= 'Generate an informative and concise text about the following words, it must be in a single sentence and make sense. Also identify the language and reply in the same language.'+text_message,
+        prompt= 'Generate an informative and concise text about the following words, it must be in a single sentence and make sense. Also reply in the same language as the words you receive.'+text_message,
         temperature = 0,
         max_tokens=40,
         organization=OPEN_AI_ORG_KEY
